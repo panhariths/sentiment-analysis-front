@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { getSentiment } from "@/app/api/get-sentiment";
 import { useState } from "react";
+import { Textarea } from "./ui/textarea";
 
 export const formSchema = z.object({
   text: z.string().min(1).max(200),
@@ -35,10 +36,14 @@ export default function FormBox({ updateResult }: IProps) {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    // Reset values
     setIsLoading(true);
     updateResult(undefined);
+
+    // Send request to server
     const response = await getSentiment({ text: values.text });
 
+    // Update values
     if (response) {
       setIsLoading(false);
       updateResult(response.sentiments);
@@ -55,7 +60,7 @@ export default function FormBox({ updateResult }: IProps) {
             <FormItem>
               <FormLabel className="font-regular text-gray-600">Input</FormLabel>
               <FormControl>
-                <Input
+                <Textarea
                   className="focus-visible:ring-0"
                   placeholder="Enter your text here"
                   {...field}
