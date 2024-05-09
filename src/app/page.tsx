@@ -40,8 +40,8 @@ export default function Home() {
   };
 
   return (
-    <main className="h-screen w-screen flex justify-center items-center bg-gradient-to-r from-indigo-500 from-10% to-sky-500 to-90% opacity-90">
-      <div className="bg-white w-1/3 rounded-md p-10">
+    <main className="h-svh w-screen overflow-y-scroll flex justify-center items-center bg-gradient-to-r from-indigo-500 from-10% to-sky-500 to-90% opacity-90">
+      <div className="bg-white lg:w-1/3 sm:w-1/2 w-full mx-8 rounded-md p-10">
         <h4 className="text-lg font-medium mb-6">Khmer Sentiment Analysis</h4>
         <FormBox updateResult={updateResult} />
         {result && (
