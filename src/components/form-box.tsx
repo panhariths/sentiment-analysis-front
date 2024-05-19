@@ -1,6 +1,6 @@
 "use client";
 
-import { z } from "zod";
+import { ZodIssue, z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ import { useState } from "react";
 import { Textarea } from "./ui/textarea";
 
 export const formSchema = z.object({
-  text: z.string().min(1).max(200),
+  text: z.string().min(0).max(200),
 });
 
 interface IProps {
@@ -28,6 +28,10 @@ interface IProps {
 export default function FormBox({ updateResult }: IProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const [noInputError, setNoInputError] = useState<boolean>(false);
+  const [textError, setTextError] = useState<boolean>(false);
+  const [serverError, setServerError] = useState<boolean>(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -36,17 +40,46 @@ export default function FormBox({ updateResult }: IProps) {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    updateResult(undefined);
+    setNoInputError(false);
+    setTextError(false);
+    setServerError(false);
+
+    if (values.text.length === 0) {
+      setNoInputError(true);
+      return;
+    } else {
+      setNoInputError(false);
+    }
+
+    // Regular expression to match Khmer alphabets, digits, white space, special characters, and emojis
+    const khmerPattern =
+      /^(?=.*[\u1780-\u17FF])[\u1780-\u17FF\s\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~\p{Emoji}]*$/u;
+
+    // Show error message when regex test does not match
+    if (!khmerPattern.test(values.text)) {
+      setTextError(true);
+      return;
+    } else {
+      setTextError(false);
+    }
+
     // Reset values
     setIsLoading(true);
     updateResult(undefined);
 
-    // Send request to server
-    const response = await getSentiment({ text: values.text });
+    try {
+      // Send request to server
+      const response = await getSentiment({ text: values.text });
 
-    // Update values
-    if (response) {
+      // Update values
+      if (response) {
+        setIsLoading(false);
+        updateResult(response.sentiments);
+      }
+    } catch (err) {
+      setServerError(true);
       setIsLoading(false);
-      updateResult(response.sentiments);
     }
   }
 
@@ -66,7 +99,19 @@ export default function FormBox({ updateResult }: IProps) {
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
+              {noInputError && (
+                <p className="text-sm font-medium text-destructive">Please provide Khmer input</p>
+              )}
+              {textError && (
+                <p className="text-sm font-medium text-destructive">
+                  Please enter text in Khmer language only
+                </p>
+              )}
+              {serverError && (
+                <p className="text-sm font-medium text-destructive">
+                  There was a problem retrieving the sentiment from the model API. Please try again.
+                </p>
+              )}
             </FormItem>
           )}
         />
