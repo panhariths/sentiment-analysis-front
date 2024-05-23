@@ -40,6 +40,8 @@ export default function FormBox({ updateResult }: IProps) {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (isLoading) return;
+
     updateResult(undefined);
     setNoInputError(false);
     setTextError(false);
@@ -62,7 +64,6 @@ export default function FormBox({ updateResult }: IProps) {
       return;
     } else {
       setTextError(false);
-      return;
     }
 
     // Reset values
