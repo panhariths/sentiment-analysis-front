@@ -54,7 +54,7 @@ export default function FormBox({ updateResult }: IProps) {
 
     // Regular expression to match Khmer alphabets, digits, white space, special characters, and emojis
     const khmerPattern =
-      /^(?=.*[\u1780-\u17FF])[\u1780-\u17FF\s\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~\p{Emoji}]*$/u;
+      /^(?=.*[\u1780-\u17FF])[\u1780-\u17FF\s\d!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~\p{Emoji}\u200B]*$/u;
 
     // Show error message when regex test does not match
     if (!khmerPattern.test(values.text)) {
@@ -62,6 +62,7 @@ export default function FormBox({ updateResult }: IProps) {
       return;
     } else {
       setTextError(false);
+      return;
     }
 
     // Reset values
